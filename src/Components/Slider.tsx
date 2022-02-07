@@ -5,6 +5,7 @@ import { makeImagePath } from "../utils";
 import { IMovie } from "../api";
 import { useState } from "react";
 import PopupScreen from "./PopupBox";
+import { resourceLimits } from "worker_threads";
 
 const OFFSET = 6;
 const NETFLIX_LOGO_URL =
@@ -92,13 +93,14 @@ const infoVariants = {
 };
 interface ISliderProps {
   sliderTitle: string;
+  category: string;
   dataSet: IMovie[];
 }
-function Slider({ sliderTitle, dataSet }: ISliderProps) {
+function Slider({ sliderTitle, category, dataSet }: ISliderProps) {
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const history = useHistory();
-  const isModal = useRouteMatch<{ id: string }>("/movies/:id");
+  const isModal = useRouteMatch<{ id: string }>(["/movies/:id", "/tv/:id"]);
   const [currentRow, setCurrentRow] = useState("");
 
   const increaseIndex = () => {
@@ -115,11 +117,13 @@ function Slider({ sliderTitle, dataSet }: ISliderProps) {
 
   const onBoxClicked = (id: string) => {
     setCurrentRow(sliderTitle);
-    history.push(`/movies/${id}`);
+    category === "movie"
+      ? history.push(`/movies/${id}`)
+      : history.push(`/tv/${id}`);
   };
   const onOverlayClicked = () => {
     setCurrentRow("");
-    history.push("/");
+    category === "movie" ? history.push("/") : history.push("/tv");
   };
 
   console.log(sliderTitle, currentRow);
@@ -155,7 +159,7 @@ function Slider({ sliderTitle, dataSet }: ISliderProps) {
                   }
                 >
                   <Info variants={infoVariants}>
-                    <h4>{result.title}</h4>
+                    {category === "movie" ? result.title : result.name}
                   </Info>
                 </Box>
               ))}

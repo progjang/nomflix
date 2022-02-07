@@ -1,10 +1,12 @@
 import { useQuery } from "react-query";
 import styled from "styled-components";
 import {
+  getLatestMovies,
   getMovies,
   getTopRatedMovies,
   getUpcomingMovies,
   IGetMoviesResult,
+  IMovie,
 } from "../api";
 import { makeImagePath } from "../utils";
 import Slider from "../Components/Slider";
@@ -43,6 +45,11 @@ const OverView = styled.p`
 `;
 
 function Home() {
+  const { isLoading: isLoadingLatest, data: dataLatest } = useQuery<IMovie>(
+    ["movies", "latest"],
+    getLatestMovies
+  );
+
   const { isLoading: isLoadingNowPlaying, data: dataNowPlaying } =
     useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
 
@@ -52,33 +59,43 @@ function Home() {
   const { isLoading: isLoadingUpcoming, data: dataUpcoming } =
     useQuery<IGetMoviesResult>(["movies", "upComing"], getUpcomingMovies);
 
-  let isLoading = isLoadingNowPlaying || isLoadingTopRated || isLoadingUpcoming;
-
+  let isLoading =
+    isLoadingNowPlaying ||
+    isLoadingTopRated ||
+    isLoadingUpcoming ||
+    isLoadingLatest;
+  console.log(dataLatest);
   return (
     <Wrapper>
       {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner
-            bgphoto={makeImagePath(
-              dataNowPlaying?.results[0].backdrop_path || ""
-            )}
-          >
-            <Title>{dataNowPlaying?.results[0].title}</Title>
-            <OverView>{dataNowPlaying?.results[0].overview}</OverView>
+          <Banner bgphoto={makeImagePath(dataLatest?.backdrop_path || "")}>
+            <Title>Latest: {dataLatest?.title}</Title>
+            <OverView>{dataLatest?.overview}</OverView>
           </Banner>
+
           {dataNowPlaying && (
             <Slider
+              category="movie"
               sliderTitle="Now Playing"
               dataSet={dataNowPlaying.results}
             />
           )}
           {dataTopRated && (
-            <Slider sliderTitle="Top Rated" dataSet={dataTopRated.results} />
+            <Slider
+              category="movie"
+              sliderTitle="Top Rated"
+              dataSet={dataTopRated.results}
+            />
           )}
           {dataUpcoming && (
-            <Slider sliderTitle="Upcoming" dataSet={dataUpcoming.results} />
+            <Slider
+              category="movie"
+              sliderTitle="Upcoming"
+              dataSet={dataUpcoming.results}
+            />
           )}
         </>
       )}

@@ -5,14 +5,8 @@ export interface IMovie {
   id: number;
   backdrop_path: string;
   poster_path: string;
-  title: string;
-  overview: string;
-}
-export interface ITv {
-  id: number;
-  backdrop_path: string;
-  poster_path: string;
-  name: string;
+  title?: string;
+  name?: string;
   overview: string;
 }
 export interface IGetMoviesResult {
@@ -23,9 +17,14 @@ export interface IGetMoviesResult {
 }
 export interface IGetTvResults {
   page: number;
-  results: ITv[];
+  results: IMovie[];
   totoal_pages: number;
   total_results: number;
+}
+export function getLatestMovies() {
+  return fetch(`${BASE_PATH}/movie/latest?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
 }
 export function getMovies() {
   return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then(
@@ -44,6 +43,16 @@ export function getUpcomingMovies() {
 }
 export function getTvAiringToday() {
   return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+export function getTvPopular() {
+  return fetch(`${BASE_PATH}/tv/popular?api_key=${API_KEY}`).then((response) =>
+    response.json()
+  );
+}
+export function getTvTopRated() {
+  return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
 }
